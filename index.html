@@ -307,12 +307,9 @@
 </div>
 
 <script>
-    // ---------- CONFIGURATION ----------
-    const STORAGE_ZONE = "media8k";
-    const ACCESS_KEY = "1ab424f0-0f82-4ffd-8aaa073ba2df-c39c-4ba0";
-    const REGION = "sg";
+
     const BASE_CDN_URL = "https://media8k.b-cdn.net/IT-HARDWARE/";
-    
+    const API_URL = "https://i-quat.homelab6.site/"
     // Current path inside IT-HARDWARE (empty string = root of IT-HARDWARE)
     let currentPath = "";      // e.g., "subfolder/" or "docs/images/"
     
@@ -325,7 +322,7 @@
         }
         // ensure trailing slash for directory listing API (BunnyCDN standard)
         if (!fullDir.endsWith("/")) fullDir += "/";
-        return `https://${REGION}.storage.bunnycdn.com/${STORAGE_ZONE}/${fullDir}`;
+        return `${API_URL}public/media8k?fullDir=${encodeURIComponent(fullDir)}`;
     }
     
     // Build public CDN url for a file (full download link)
@@ -408,18 +405,15 @@
         const apiUrl = buildApiUrl(currentPath);
         
         try {
-            const response = await fetch(apiUrl, {
-                headers: {
-                    "AccessKey": ACCESS_KEY,
-                    "Accept": "application/json"
-                }
-            });
+            const response = await fetch(apiUrl);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
-            const items = await response.json();
+            const responseJson = await response.json();
+
+            const items = responseJson.data
             if (!Array.isArray(items)) {
                 throw new Error("Invalid API response format");
             }
