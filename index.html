@@ -342,10 +342,10 @@
         const prefix = "IT-HARDWARE/";
         if (objectName.startsWith(prefix)) {
             const relativePart = objectName.substring(prefix.length);
-            return BASE_CDN_URL + encodeURIComponent(relativePart);
+            return BASE_CDN_URL+ currentPath + encodeURIComponent(relativePart);
         }
         // fallback: just in case
-        return BASE_CDN_URL + encodeURIComponent(objectName);
+        return BASE_CDN_URL+ currentPath + encodeURIComponent(objectName);
     }
     
     // Get folder display path for breadcrumbs
@@ -560,7 +560,7 @@
             else if (["txt","md","log"].includes(fileExt)) fileIcon = "📝";
             else if (["doc","docx","xls","xlsx","ppt","pptx"].includes(fileExt)) fileIcon = "📊";
             
-            const cdnUrl = getCdnUrlFromObjectName(fileNameRaw);
+            const cdnUrl = getCdnUrlFromObjectName(fileNameRaw,currentPath);
             
             const li = document.createElement("li");
             li.className = "list-item";
