@@ -1,490 +1,503 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
     <title>IT-HARDWARE Storage Browser | Files & Folders</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 24px 20px;
-            background: #f8fafc;
-            color: #0f172a;
-        }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          system-ui, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 24px 20px;
+        background: #f8fafc;
+        color: #0f172a;
+      }
+      .container {
+        background: white;
+        border-radius: 24px;
+        box-shadow:
+          0 8px 20px rgba(0, 0, 0, 0.05),
+          0 2px 4px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+        padding: 20px 24px 32px 24px;
+        transition: all 0.2s;
+      }
+      h3 {
+        margin: 0 0 6px 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        background: linear-gradient(135deg, #1e2a3e, #0f2b3d);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        display: inline-block;
+      }
+      .header-sub {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #e9edf2;
+        padding-bottom: 12px;
+      }
+      .badge {
+        background: #eef2ff;
+        color: #1e40af;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 40px;
+        font-family: monospace;
+      }
+      .path-indicator {
+        background: #f1f5f9;
+        padding: 8px 14px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        font-family: "SF Mono", "Menlo", monospace;
+        color: #334155;
+        word-break: break-all;
+        display: inline-block;
+      }
+      .controls-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .btn-refresh {
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 40px;
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #1e293b;
+      }
+      .btn-refresh:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+      }
+      .stats {
+        font-size: 0.85rem;
+        background: #f1f5f9;
+        padding: 6px 14px;
+        border-radius: 32px;
+        color: #2c3e66;
+      }
+      #fileList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .list-item {
+        margin: 0;
+        padding: 0;
+        transition: all 0.15s ease;
+      }
+      .item-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        background-color: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 18px;
+        transition: all 0.2s;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.02);
+      }
+      .item-card:hover {
+        background-color: #fafcff;
+        border-color: #cbdff2;
+        transform: translateX(3px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .icon {
+        font-size: 1.6rem;
+        width: 36px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .item-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .item-name {
+        font-weight: 540;
+        word-break: break-word;
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+      .item-meta {
+        font-size: 0.7rem;
+        color: #5b6e8c;
+        margin-top: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .folder-marker {
+        background: #eef2ff;
+        font-size: 0.7rem;
+        padding: 2px 10px;
+        border-radius: 30px;
+        color: #1e40af;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+      }
+      .file-size {
+        font-family: monospace;
+        background: #f8fafc;
+        padding: 2px 8px;
+        border-radius: 20px;
+      }
+      .action-link {
+        text-decoration: none;
+        color: #0f3b5c;
+        font-weight: 500;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f1f5f9;
+        padding: 4px 12px;
+        border-radius: 30px;
+        transition: 0.15s;
+        white-space: nowrap;
+      }
+      .action-link:hover {
+        background: #e2e8f0;
+        color: #0c4e6e;
+      }
+      .folder-link {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .error {
+        color: #b91c1c;
+        background: #fee2e2;
+        padding: 14px 18px;
+        border-radius: 20px;
+        border-left: 4px solid #dc2626;
+        font-weight: 500;
+      }
+      .loading {
+        color: #475569;
+        padding: 24px;
+        text-align: center;
+        font-style: normal;
+        background: #f8fafc;
+        border-radius: 28px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        align-items: center;
+      }
+      .empty-message {
+        color: #5b6e8c;
+        padding: 32px;
+        text-align: center;
+        background: #f9fbfe;
+        border-radius: 28px;
+        border: 1px dashed #cbd5e1;
+      }
+      .breadcrumb {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 10px 16px;
+        border-radius: 60px;
+        margin-bottom: 20px;
+        font-size: 0.85rem;
+      }
+      .crumb {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: #2c6e9e;
+        font-weight: 500;
+        padding: 4px 6px;
+        border-radius: 20px;
+        transition: 0.1s;
+      }
+      .crumb:hover {
+        background: #eef2ff;
+        text-decoration: underline;
+      }
+      .separator {
+        color: #94a3b8;
+        user-select: none;
+      }
+      .current-dir {
+        font-weight: 600;
+        color: #0f172a;
+        background: #eef2ff;
+        padding: 4px 12px;
+        border-radius: 40px;
+      }
+      hr {
+        margin: 16px 0 8px;
+        border: none;
+        border-top: 1px solid #eef2f6;
+      }
+      @media (max-width: 550px) {
         .container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.02);
-            overflow: hidden;
-            padding: 20px 24px 32px 24px;
-            transition: all 0.2s;
-        }
-        h3 {
-            margin: 0 0 6px 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, #1e2a3e, #0f2b3d);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-        .header-sub {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #e9edf2;
-            padding-bottom: 12px;
-        }
-        .badge {
-            background: #eef2ff;
-            color: #1e40af;
-            font-size: 0.8rem;
-            font-weight: 500;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-family: monospace;
-        }
-        .path-indicator {
-            background: #f1f5f9;
-            padding: 8px 14px;
-            border-radius: 16px;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            font-family: 'SF Mono', 'Menlo', monospace;
-            color: #334155;
-            word-break: break-all;
-            display: inline-block;
-        }
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .btn-refresh {
-            background: white;
-            border: 1px solid #cbd5e1;
-            border-radius: 40px;
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #1e293b;
-        }
-        .btn-refresh:hover {
-            background: #f1f5f9;
-            border-color: #94a3b8;
-        }
-        .stats {
-            font-size: 0.85rem;
-            background: #f1f5f9;
-            padding: 6px 14px;
-            border-radius: 32px;
-            color: #2c3e66;
-        }
-        #fileList {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .list-item {
-            margin: 0;
-            padding: 0;
-            transition: all 0.15s ease;
+          padding: 16px;
         }
         .item-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background-color: #ffffff;
-            border: 1px solid #eef2f6;
-            border-radius: 18px;
-            transition: all 0.2s;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.02);
-        }
-        .item-card:hover {
-            background-color: #fafcff;
-            border-color: #cbdff2;
-            transform: translateX(3px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        }
-        .icon {
-            font-size: 1.6rem;
-            width: 36px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        .item-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .item-name {
-            font-weight: 540;
-            word-break: break-word;
-            font-size: 1rem;
-            line-height: 1.4;
-        }
-        .item-meta {
-            font-size: 0.7rem;
-            color: #5b6e8c;
-            margin-top: 4px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .folder-marker {
-            background: #eef2ff;
-            font-size: 0.7rem;
-            padding: 2px 10px;
-            border-radius: 30px;
-            color: #1e40af;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-        }
-        .file-size {
-            font-family: monospace;
-            background: #f8fafc;
-            padding: 2px 8px;
-            border-radius: 20px;
+          flex-wrap: wrap;
         }
         .action-link {
-            text-decoration: none;
-            color: #0f3b5c;
-            font-weight: 500;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 30px;
-            transition: 0.15s;
-            white-space: nowrap;
+          margin-top: 4px;
         }
-        .action-link:hover {
-            background: #e2e8f0;
-            color: #0c4e6e;
+        .icon {
+          width: 28px;
+          font-size: 1.3rem;
         }
-        .folder-link {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .error {
-            color: #b91c1c;
-            background: #fee2e2;
-            padding: 14px 18px;
-            border-radius: 20px;
-            border-left: 4px solid #dc2626;
-            font-weight: 500;
-        }
-        .loading {
-            color: #475569;
-            padding: 24px;
-            text-align: center;
-            font-style: normal;
-            background: #f8fafc;
-            border-radius: 28px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            align-items: center;
-        }
-        .empty-message {
-            color: #5b6e8c;
-            padding: 32px;
-            text-align: center;
-            background: #f9fbfe;
-            border-radius: 28px;
-            border: 1px dashed #cbd5e1;
-        }
-        .breadcrumb {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-            background: #f8fafc;
-            padding: 10px 16px;
-            border-radius: 60px;
-            margin-bottom: 20px;
-            font-size: 0.85rem;
-        }
-        .crumb {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: #2c6e9e;
-            font-weight: 500;
-            padding: 4px 6px;
-            border-radius: 20px;
-            transition: 0.1s;
-        }
-        .crumb:hover {
-            background: #eef2ff;
-            text-decoration: underline;
-        }
-        .separator {
-            color: #94a3b8;
-            user-select: none;
-        }
-        .current-dir {
-            font-weight: 600;
-            color: #0f172a;
-            background: #eef2ff;
-            padding: 4px 12px;
-            border-radius: 40px;
-        }
-        hr {
-            margin: 16px 0 8px;
-            border: none;
-            border-top: 1px solid #eef2f6;
-        }
-        @media (max-width: 550px) {
-            .container {
-                padding: 16px;
-            }
-            .item-card {
-                flex-wrap: wrap;
-            }
-            .action-link {
-                margin-top: 4px;
-            }
-            .icon {
-                width: 28px;
-                font-size: 1.3rem;
-            }
-        }
-        button {
-            background: none;
-            border: none;
-        }
+      }
+      button {
+        background: none;
+        border: none;
+      }
     </style>
-</head>
-<body>
-<div class="container">
-    <div class="header-sub">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-sub">
         <h3>📁 IT-HARDWARE Library</h3>
         <div class="badge">BunnyCDN • Media8k</div>
-    </div>
-    
-    <!-- Breadcrumb navigation + controls -->
-    <div class="breadcrumb" id="breadcrumbArea">
+      </div>
+
+      <!-- Breadcrumb navigation + controls -->
+      <div class="breadcrumb" id="breadcrumbArea">
         <!-- dynamic breadcrumb will be injected -->
-    </div>
-    
-    <div class="controls-bar">
+      </div>
+
+      <div class="controls-bar">
         <button class="btn-refresh" id="refreshBtn">⟳ Refresh</button>
         <div class="stats" id="statsArea">—</div>
-    </div>
-    
-    <ul id="fileList">
+      </div>
+
+      <ul id="fileList">
         <li class="loading">📡 Loading files & folders...</li>
-    </ul>
-</div>
+      </ul>
+    </div>
 
-<script>
+    <script>
+      const BASE_CDN_URL = "https://media8k.b-cdn.net/IT-HARDWARE/";
+      const API_URL = "https://a-production-1f8c.up.railway.app/";
+      // Current path inside IT-HARDWARE (empty string = root of IT-HARDWARE)
+      let currentPath = ""; // e.g., "subfolder/" or "docs/images/"
 
-    const BASE_CDN_URL = "https://media8k.b-cdn.net/IT-HARDWARE/";
-    const API_URL = "https://i-quat.homelab6.site/"
-    // Current path inside IT-HARDWARE (empty string = root of IT-HARDWARE)
-    let currentPath = "";      // e.g., "subfolder/" or "docs/images/"
-    
-    // ---------- Helper: encode path segments for API and display ----------
-    function buildApiUrl(subPath) {
+      // ---------- Helper: encode path segments for API and display ----------
+      function buildApiUrl(subPath) {
         // subPath should NOT start with slash, but can be empty or "folder/"
         let fullDir = "IT-HARDWARE/";
         if (subPath && subPath.length > 0) {
-            fullDir += subPath;
+          fullDir += subPath;
         }
         // ensure trailing slash for directory listing API (BunnyCDN standard)
         if (!fullDir.endsWith("/")) fullDir += "/";
         return `${API_URL}public/media8k?fullDir=${encodeURIComponent(fullDir)}`;
-    }
-    
-    // Build public CDN url for a file (full download link)
-    function getPublicFileUrl(fileName) {
+      }
+
+      // Build public CDN url for a file (full download link)
+      function getPublicFileUrl(fileName) {
         // fileName is relative to currentPath? Actually API returns ObjectName which is full path relative to zone root?
-        // The BunnyCDN List response: ObjectName is the full path including IT-HARDWARE/... 
+        // The BunnyCDN List response: ObjectName is the full path including IT-HARDWARE/...
         // but we need to be careful: when we list "IT-HARDWARE/subfolder/", ObjectName = "IT-HARDWARE/subfolder/file.pdf"
         // For direct CDN we should strip the "IT-HARDWARE/" prefix? Actually CDN base is https://media8k.b-cdn.net/IT-HARDWARE/...
         // So easiest: We take the relative filename from the IT-HARDWARE root.
         // We'll reconstruct relative path from the object name.
-    }
-    
-    // smarter: given objectName from API (like "IT-HARDWARE/manual.pdf" or "IT-HARDWARE/drivers/setup.exe")
-    // we need to generate CDN url: BASE_CDN_URL + relativePathAfterIT-HARDWARE/
-    function getCdnUrlFromObjectName(objectName) {
+      }
+
+      // smarter: given objectName from API (like "IT-HARDWARE/manual.pdf" or "IT-HARDWARE/drivers/setup.exe")
+      // we need to generate CDN url: BASE_CDN_URL + relativePathAfterIT-HARDWARE/
+      function getCdnUrlFromObjectName(objectName) {
         // objectName e.g., "IT-HARDWARE/Drivers/audio.zip"
         const prefix = "IT-HARDWARE/";
         if (objectName.startsWith(prefix)) {
-            const relativePart = objectName.substring(prefix.length);
-            return BASE_CDN_URL+ currentPath + encodeURIComponent(relativePart);
+          const relativePart = objectName.substring(prefix.length);
+          return BASE_CDN_URL + currentPath + encodeURIComponent(relativePart);
         }
         // fallback: just in case
-        return BASE_CDN_URL+ currentPath + encodeURIComponent(objectName);
-    }
-    
-    // Get folder display path for breadcrumbs
-    function getDisplayPath() {
+        return BASE_CDN_URL + currentPath + encodeURIComponent(objectName);
+      }
+
+      // Get folder display path for breadcrumbs
+      function getDisplayPath() {
         if (!currentPath) return "root";
-        return currentPath.endsWith("/") ? currentPath.slice(0, -1) : currentPath;
-    }
-    
-    // Render breadcrumb navigation with clickable segments
-    function renderBreadcrumb() {
+        return currentPath.endsWith("/")
+          ? currentPath.slice(0, -1)
+          : currentPath;
+      }
+
+      // Render breadcrumb navigation with clickable segments
+      function renderBreadcrumb() {
         const breadcrumbDiv = document.getElementById("breadcrumbArea");
         if (!breadcrumbDiv) return;
-        let parts = currentPath.split("/").filter(p => p !== "");
+        let parts = currentPath.split("/").filter((p) => p !== "");
         let html = `<button class="crumb" data-path="">📂 IT-HARDWARE</button>`;
         let accumulated = "";
         parts.forEach((part, idx) => {
-            accumulated += part + "/";
-            const isLast = (idx === parts.length - 1);
-            html += `<span class="separator">›</span>`;
-            if (!isLast) {
-                html += `<button class="crumb" data-path="${accumulated}">${escapeHtml(part)}</button>`;
-            } else {
-                html += `<span class="current-dir">📁 ${escapeHtml(part)}</span>`;
-            }
+          accumulated += part + "/";
+          const isLast = idx === parts.length - 1;
+          html += `<span class="separator">›</span>`;
+          if (!isLast) {
+            html += `<button class="crumb" data-path="${accumulated}">${escapeHtml(part)}</button>`;
+          } else {
+            html += `<span class="current-dir">📁 ${escapeHtml(part)}</span>`;
+          }
         });
         if (currentPath === "") {
-            html = `<button class="crumb" data-path="" style="background:#eef2ff; font-weight:600;">🏠 IT-HARDWARE (root)</button>`;
+          html = `<button class="crumb" data-path="" style="background:#eef2ff; font-weight:600;">🏠 IT-HARDWARE (root)</button>`;
         }
         breadcrumbDiv.innerHTML = html;
         // attach event listeners to crumbs
-        document.querySelectorAll('.crumb[data-path]').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const targetPath = el.getAttribute('data-path');
-                if (targetPath !== undefined) {
-                    navigateToFolder(targetPath);
-                }
-            });
+        document.querySelectorAll(".crumb[data-path]").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            const targetPath = el.getAttribute("data-path");
+            if (targetPath !== undefined) {
+              navigateToFolder(targetPath);
+            }
+          });
         });
-    }
-    
-    // Navigate to a specific folder path (relative to IT-HARDWARE/)
-    function navigateToFolder(path) {
-        currentPath = path;   // path should be like "subfolder/" or "subfolder/subsub/"
+      }
+
+      // Navigate to a specific folder path (relative to IT-HARDWARE/)
+      function navigateToFolder(path) {
+        currentPath = path; // path should be like "subfolder/" or "subfolder/subsub/"
         if (currentPath && !currentPath.endsWith("/")) currentPath += "/";
         loadFilesAndFolders();
-    }
-    
-    // Go up or refresh
-    async function loadFilesAndFolders() {
+      }
+
+      // Go up or refresh
+      async function loadFilesAndFolders() {
         const fileListEl = document.getElementById("fileList");
         const statsSpan = document.getElementById("statsArea");
         if (!fileListEl) return;
-        
-        fileListEl.innerHTML = '<li class="loading"><span>⏳</span> Loading directory contents...</li>';
-        if (statsSpan) statsSpan.textContent = "⏳ fetching...";
-        
-        const apiUrl = buildApiUrl(currentPath);
-        
-        try {
-            const response = await fetch(apiUrl);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const responseJson = await response.json();
 
-            const items = responseJson.data
-            if (!Array.isArray(items)) {
-                throw new Error("Invalid API response format");
-            }
-            
-            // Separate directories and files
-            // BunnyCDN returns IsDirectory flag (boolean)
-            const directories = items.filter(item => item.IsDirectory === true);
-            const files = items.filter(item => !item.IsDirectory);
-            
-            // sort directories alphabetically, files alphabetically
-            directories.sort((a,b) => (a.ObjectName || "").localeCompare(b.ObjectName || ""));
-            files.sort((a,b) => (a.ObjectName || "").localeCompare(b.ObjectName || ""));
-            
-            renderList(directories, files);
-            
-            // Update stats
-            if (statsSpan) {
-                statsSpan.textContent = `📁 ${directories.length} folder(s) • 📄 ${files.length} file(s)`;
-            }
-            renderBreadcrumb();
-            
+        fileListEl.innerHTML =
+          '<li class="loading"><span>⏳</span> Loading directory contents...</li>';
+        if (statsSpan) statsSpan.textContent = "⏳ fetching...";
+
+        const apiUrl = buildApiUrl(currentPath);
+
+        try {
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const responseJson = await response.json();
+
+          const items = responseJson.data;
+          if (!Array.isArray(items)) {
+            throw new Error("Invalid API response format");
+          }
+
+          // Separate directories and files
+          // BunnyCDN returns IsDirectory flag (boolean)
+          const directories = items.filter((item) => item.IsDirectory === true);
+          const files = items.filter((item) => !item.IsDirectory);
+
+          // sort directories alphabetically, files alphabetically
+          directories.sort((a, b) =>
+            (a.ObjectName || "").localeCompare(b.ObjectName || ""),
+          );
+          files.sort((a, b) =>
+            (a.ObjectName || "").localeCompare(b.ObjectName || ""),
+          );
+
+          renderList(directories, files);
+
+          // Update stats
+          if (statsSpan) {
+            statsSpan.textContent = `📁 ${directories.length} folder(s) • 📄 ${files.length} file(s)`;
+          }
+          renderBreadcrumb();
         } catch (err) {
-            console.error("Storage error:", err);
-            fileListEl.innerHTML = `<li class="error">❌ Failed to load: ${escapeHtml(err.message)}<br><span style="font-size:0.8rem;">Check access key, zone, or path permissions.</span></li>`;
-            if (statsSpan) statsSpan.textContent = "⚠️ error";
-            renderBreadcrumb(); // keep breadcrumb but show error state
+          console.error("Storage error:", err);
+          fileListEl.innerHTML = `<li class="error">❌ Failed to load: ${escapeHtml(err.message)}<br><span style="font-size:0.8rem;">Check access key, zone, or path permissions.</span></li>`;
+          if (statsSpan) statsSpan.textContent = "⚠️ error";
+          renderBreadcrumb(); // keep breadcrumb but show error state
         }
-    }
-    
-    // Render the full list (directories + files) with folder navigation and file links
-    function renderList(directories, files) {
+      }
+
+      // Render the full list (directories + files) with folder navigation and file links
+      function renderList(directories, files) {
         const fileListEl = document.getElementById("fileList");
         if (!fileListEl) return;
         fileListEl.innerHTML = "";
-        
+
         if (directories.length === 0 && files.length === 0) {
-            fileListEl.innerHTML = '<li class="empty-message">📭 This folder is empty. No files or subfolders found.</li>';
-            return;
+          fileListEl.innerHTML =
+            '<li class="empty-message">📭 This folder is empty. No files or subfolders found.</li>';
+          return;
         }
-        
+
         // ----- 1. Render directories first (show folders, and IsDirectory = True) -----
-        directories.forEach(folder => {
-            // folder.ObjectName example: "IT-HARDWARE/drivers/" or "IT-HARDWARE/currentPath/folderName/"
-            // We need to extract the base folder name relative to currentPath
-            let folderName = "";
-            const fullObject = folder.ObjectName; // e.g., "IT-HARDWARE/manuals/"
-            const prefix = "IT-HARDWARE/";
-            let relativeFull = fullObject;
-            if (fullObject.startsWith(prefix)) {
-                relativeFull = fullObject.substring(prefix.length);
-            }
-            // relativeFull may be like "drivers/" or "docs/schematics/"
-            let displayFolder = relativeFull;
-            if (currentPath) {
-                // remove currentPath prefix to get immediate child name
-                if (displayFolder.startsWith(currentPath)) {
-                    let remainder = displayFolder.substring(currentPath.length);
-                    remainder = remainder.replace(/\/$/, "");
-                    displayFolder = remainder.split("/")[0] || "folder";
-                } else {
-                    displayFolder = relativeFull.split("/").filter(p => p)[0] || "unknown";
-                }
+        directories.forEach((folder) => {
+          // folder.ObjectName example: "IT-HARDWARE/drivers/" or "IT-HARDWARE/currentPath/folderName/"
+          // We need to extract the base folder name relative to currentPath
+          let folderName = "";
+          const fullObject = folder.ObjectName; // e.g., "IT-HARDWARE/manuals/"
+          const prefix = "IT-HARDWARE/";
+          let relativeFull = fullObject;
+          if (fullObject.startsWith(prefix)) {
+            relativeFull = fullObject.substring(prefix.length);
+          }
+          // relativeFull may be like "drivers/" or "docs/schematics/"
+          let displayFolder = relativeFull;
+          if (currentPath) {
+            // remove currentPath prefix to get immediate child name
+            if (displayFolder.startsWith(currentPath)) {
+              let remainder = displayFolder.substring(currentPath.length);
+              remainder = remainder.replace(/\/$/, "");
+              displayFolder = remainder.split("/")[0] || "folder";
             } else {
-                // root: folder name is first segment
-                displayFolder = relativeFull.split("/")[0] || "subfolder";
+              displayFolder =
+                relativeFull.split("/").filter((p) => p)[0] || "unknown";
             }
-            if (!displayFolder) displayFolder = "unnamed";
-            
-            const li = document.createElement("li");
-            li.className = "list-item";
-            li.innerHTML = `
+          } else {
+            // root: folder name is first segment
+            displayFolder = relativeFull.split("/")[0] || "subfolder";
+          }
+          if (!displayFolder) displayFolder = "unnamed";
+
+          const li = document.createElement("li");
+          li.className = "list-item";
+          li.innerHTML = `
                 <div class="item-card folder-card">
                     <div class="icon">📂</div>
                     <div class="item-info" style="flex:1">
@@ -499,79 +512,89 @@
                     </div>
                 </div>
             `;
-            fileListEl.appendChild(li);
-            
-            // Add click event to navigate into folder
-            const openBtn = li.querySelector(".open-folder-btn");
-            if (openBtn) {
-                openBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    let targetRelativePath = openBtn.getAttribute("data-raw-path");
-                    if (!targetRelativePath) targetRelativePath = relativeFull;
-                    // ensure trailing slash
-                    if (!targetRelativePath.endsWith("/")) targetRelativePath += "/";
-                    navigateToFolder(targetRelativePath);
-                });
-            }
-            // also make whole card clickable (optional but nice)
-            const cardDiv = li.querySelector(".item-card");
-            if (cardDiv) {
-                cardDiv.style.cursor = "pointer";
-                cardDiv.addEventListener("click", (e) => {
-                    if (e.target.closest(".open-folder-btn")) return;
-                    let targetRel = relativeFull;
-                    if (!targetRel.endsWith("/")) targetRel += "/";
-                    navigateToFolder(targetRel);
-                });
-            }
+          fileListEl.appendChild(li);
+
+          // Add click event to navigate into folder
+          const openBtn = li.querySelector(".open-folder-btn");
+          if (openBtn) {
+            openBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              let targetRelativePath = openBtn.getAttribute("data-raw-path");
+              if (!targetRelativePath) targetRelativePath = relativeFull;
+              // ensure trailing slash
+              if (!targetRelativePath.endsWith("/")) targetRelativePath += "/";
+              navigateToFolder(targetRelativePath);
+            });
+          }
+          // also make whole card clickable (optional but nice)
+          const cardDiv = li.querySelector(".item-card");
+          if (cardDiv) {
+            cardDiv.style.cursor = "pointer";
+            cardDiv.addEventListener("click", (e) => {
+              if (e.target.closest(".open-folder-btn")) return;
+              let targetRel = relativeFull;
+              if (!targetRel.endsWith("/")) targetRel += "/";
+              navigateToFolder(targetRel);
+            });
+          }
         });
-        
+
         // ----- 2. Render files (IsDirectory === false) -----
-        files.forEach(file => {
-            const fileNameRaw = file.ObjectName;  // full path including IT-HARDWARE/...
-            let displayFileName = "";
-            const prefix = "IT-HARDWARE/";
-            let relativePath = fileNameRaw;
-            if (fileNameRaw.startsWith(prefix)) {
-                relativePath = fileNameRaw.substring(prefix.length);
-            }
-            // extract filename relative to current directory
-            if (currentPath) {
-                if (relativePath.startsWith(currentPath)) {
-                    displayFileName = relativePath.substring(currentPath.length);
-                } else {
-                    displayFileName = relativePath.split("/").pop() || fileNameRaw;
-                }
+        files.forEach((file) => {
+          const fileNameRaw = file.ObjectName; // full path including IT-HARDWARE/...
+          let displayFileName = "";
+          const prefix = "IT-HARDWARE/";
+          let relativePath = fileNameRaw;
+          if (fileNameRaw.startsWith(prefix)) {
+            relativePath = fileNameRaw.substring(prefix.length);
+          }
+          // extract filename relative to current directory
+          if (currentPath) {
+            if (relativePath.startsWith(currentPath)) {
+              displayFileName = relativePath.substring(currentPath.length);
             } else {
-                displayFileName = relativePath.split("/").pop() || fileNameRaw;
+              displayFileName = relativePath.split("/").pop() || fileNameRaw;
             }
-            if (!displayFileName) displayFileName = "file";
-            
-            const fileSizeBytes = file.Length || 0;
-            const sizeStr = formatFileSize(fileSizeBytes);
-            const fileExt = (displayFileName.split('.').pop() || '').toLowerCase();
-            let fileIcon = "📄";
-            if (["pdf"].includes(fileExt)) fileIcon = "📑";
-            else if (["jpg","jpeg","png","gif","webp","svg"].includes(fileExt)) fileIcon = "🖼️";
-            else if (["zip","rar","7z","tar","gz"].includes(fileExt)) fileIcon = "🗜️";
-            else if (["mp4","mkv","mov","avi"].includes(fileExt)) fileIcon = "🎬";
-            else if (["mp3","wav","flac"].includes(fileExt)) fileIcon = "🎵";
-            else if (["exe","msi","dmg"].includes(fileExt)) fileIcon = "⚙️";
-            else if (["txt","md","log"].includes(fileExt)) fileIcon = "📝";
-            else if (["doc","docx","xls","xlsx","ppt","pptx"].includes(fileExt)) fileIcon = "📊";
-            
-            const cdnUrl = getCdnUrlFromObjectName(fileNameRaw,currentPath);
-            
-            const li = document.createElement("li");
-            li.className = "list-item";
-            li.innerHTML = `
+          } else {
+            displayFileName = relativePath.split("/").pop() || fileNameRaw;
+          }
+          if (!displayFileName) displayFileName = "file";
+
+          const fileSizeBytes = file.Length || 0;
+          const sizeStr = formatFileSize(fileSizeBytes);
+          const fileExt = (
+            displayFileName.split(".").pop() || ""
+          ).toLowerCase();
+          let fileIcon = "📄";
+          if (["pdf"].includes(fileExt)) fileIcon = "📑";
+          else if (
+            ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(fileExt)
+          )
+            fileIcon = "🖼️";
+          else if (["zip", "rar", "7z", "tar", "gz"].includes(fileExt))
+            fileIcon = "🗜️";
+          else if (["mp4", "mkv", "mov", "avi"].includes(fileExt))
+            fileIcon = "🎬";
+          else if (["mp3", "wav", "flac"].includes(fileExt)) fileIcon = "🎵";
+          else if (["exe", "msi", "dmg"].includes(fileExt)) fileIcon = "⚙️";
+          else if (["txt", "md", "log"].includes(fileExt)) fileIcon = "📝";
+          else if (
+            ["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(fileExt)
+          )
+            fileIcon = "📊";
+
+          const cdnUrl = getCdnUrlFromObjectName(fileNameRaw, currentPath);
+
+          const li = document.createElement("li");
+          li.className = "list-item";
+          li.innerHTML = `
                 <div class="item-card">
                     <div class="icon">${fileIcon}</div>
                     <div class="item-info">
                         <div class="item-name">${escapeHtml(displayFileName)}</div>
                         <div class="item-meta">
                             <span class="file-size">${sizeStr}</span>
-                            <span>📅 ${file.LastChanged ? new Date(file.LastChanged).toLocaleDateString() : '—'}</span>
+                            <span>📅 ${file.LastChanged ? new Date(file.LastChanged).toLocaleDateString() : "—"}</span>
                         </div>
                     </div>
                     <div>
@@ -579,51 +602,57 @@
                     </div>
                 </div>
             `;
-            fileListEl.appendChild(li);
+          fileListEl.appendChild(li);
         });
-    }
-    
-    // Format bytes to human readable
-    function formatFileSize(bytes) {
+      }
+
+      // Format bytes to human readable
+      function formatFileSize(bytes) {
         if (bytes === 0) return "0 B";
         if (!bytes) return "? B";
         const k = 1024;
         const sizes = ["B", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-    }
-    
-    // Simple escape utilities to prevent XSS
-    function escapeHtml(str) {
+      }
+
+      // Simple escape utilities to prevent XSS
+      function escapeHtml(str) {
         if (!str) return "";
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
+        return str
+          .replace(/[&<>]/g, function (m) {
+            if (m === "&") return "&amp;";
+            if (m === "<") return "&lt;";
+            if (m === ">") return "&gt;";
             return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+          })
+          .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function (c) {
             return c;
-        });
-    }
-    
-    function escapeAttr(str) {
+          });
+      }
+
+      function escapeAttr(str) {
         if (!str) return "";
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    
-    // Refresh handler
-    function refreshCurrent() {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // Refresh handler
+      function refreshCurrent() {
         loadFilesAndFolders();
-    }
-    
-    // Initialize event listeners
-    window.onload = () => {
+      }
+
+      // Initialize event listeners
+      window.onload = () => {
         // start from root of IT-HARDWARE
         currentPath = "";
         loadFilesAndFolders();
         const refreshBtn = document.getElementById("refreshBtn");
         if (refreshBtn) refreshBtn.addEventListener("click", refreshCurrent);
-    };
-</script>
-</body>
+      };
+    </script>
+  </body>
 </html>
